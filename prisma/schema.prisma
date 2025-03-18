@@ -1,0 +1,46 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ServiceStatus {
+  ACTIVE
+  INACTIVE
+}
+
+model Service {
+  id          Int          @id @default(autoincrement())
+  name        String
+  status      ServiceStatus @default(ACTIVE)
+  subServices SubService[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model SubService {
+  id               Int            @id @default(autoincrement())
+  name             String
+  description      String
+  processes        String
+  requiredDocuments String
+  status           ServiceStatus  @default(ACTIVE)
+  serviceId        Int
+  service          Service        @relation(fields: [serviceId], references: [id])
+  feedbacks        Feedback[]
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+}
+
+model Feedback {
+  id            Int             @id @default(autoincrement())
+  raison        String
+  status        ServiceStatus   @default(ACTIVE)
+  subServiceId  Int?
+  subService    SubService?     @relation(fields: [subServiceId], references: [id])
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+}
